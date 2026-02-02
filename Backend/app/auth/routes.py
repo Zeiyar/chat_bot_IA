@@ -19,7 +19,7 @@ def register(user: UserCreate):
     new_user = {
         "id":str(uuid4()),                  # génération ID unique
         "email": user.email,
-        "password_hash": hash_password(user.password)       # hash le mot de passe
+        "password_hash": hash_password(user.password)       # hash le mot de passe & jamais stocké en clair = sécurisé
     }
     
     # Sauvegarder en base
@@ -28,15 +28,26 @@ def register(user: UserCreate):
     return {"message":"User created successfully"}
 
 
+
+# Le front envoie email + mdp, on le récupere ici l'user et compare le hash, si ok créer un JWT
 @router.post("/login",response_model=Token)
 def login(user: UserCreate):
+
+    # Récupérer l'user
     db_user = get_user_by_email(user.email)
     
+    # Vérification de l'user et du mot de passe
     if not db_user or not verify_password(user.password,db_user["password_hash"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    token = create_access_token({"sub": db_user["id"]})
+    # Création du token (JWT)
+    token_data = {
+        "sub": user["id"],
+        "email": user["email"]
+    }
+
+    token = create_access_token(token_data)
     
-    return {"access_token":token}
+    return {"access_token":token, "token_type": "bearer"}           # je sais pas si on garde bearer?
 
-
+# puis le front reçoit le token et le mdp n'est plus utilisé
