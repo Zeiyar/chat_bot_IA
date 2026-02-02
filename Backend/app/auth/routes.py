@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status
 from uuid import uuid4
 
 from app.auth.schemas import UserCreate, Token
@@ -10,18 +10,24 @@ router = APIRouter(prefix="/auth",tags=["auth"])
 
 @router.post("/register")
 def register(user: UserCreate):
+    
+    # Vérifier si le mdp est trop long:
+    if len(user.password) > 72:
+        raise HTTPException(status_code=400,detail="Mot de passe trop long (max 72 caractères)")
 
     # Vérifier si l'user existe déjà
     if get_user_by_email(user.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
     
+    password = hash_password(user.password)
     # Créer l'user
     new_user = {
         "id":str(uuid4()),                  # génération ID unique
         "email": user.email,
-        "password_hash": hash_password(user.password)       # hash le mot de passe & jamais stocké en clair = sécurisé
+        "password_hash": password       # hash le mot de passe & jamais stocké en clair = sécurisé
     }
     
+    print("PASSWORD REÇU :", repr(user.password), len(user.password), len(user.password.encode("utf-8")))
     # Sauvegarder en base
     create_user(new_user)
 
@@ -51,3 +57,11 @@ def login(user: UserCreate):
     return {"access_token":token, "token_type": "bearer"}           # je sais pas si on garde bearer?
 
 # puis le front reçoit le token et le mdp n'est plus utilisé
+
+#
+#@router.get("/dashboard")
+#def dashboard(user_id: str = Depends(get_current_user)):
+#    return {
+#        "message": "Bienvenue sur le dashboard",
+#        "user_id": user_id
+#    }

@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from app.core.config import settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")    #tokenUrl route de login utile pour Swagger
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
@@ -16,7 +16,12 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM]
         )
-        return payload["sub"]
+        user_id : str = payload.get("sub")
+        
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Token invalide")
+
+        return user_id
 
     except JWTError:
         raise HTTPException(

@@ -8,3 +8,5 @@ tinydb
 python-dotenv
 
 httpx
+pydantic-settings
+pydantic
