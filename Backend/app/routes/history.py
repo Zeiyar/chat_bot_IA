@@ -7,3 +7,6 @@ router = APIRouter(prefix="/history", tags=["history"])
 @router.get("")
 def read_history(user_id: str = Depends(get_current_user)):
     return get_user_history(user_id)
+
+#Cette route protégée permet à un utilisateur authentifié de consulter 
+#uniquement son historique personnel, identifié grâce au token JWT par son id.
