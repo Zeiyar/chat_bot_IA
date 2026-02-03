@@ -28,7 +28,6 @@ def register(user: UserCreate):
         "password_hash": password       # hash le mot de passe & jamais stocké en clair = sécurisé
     }
     
-    print("PASSWORD REÇU :", repr(user.password), len(user.password), len(user.password.encode("utf-8")))
     # Sauvegarder en base
     create_user(new_user)
 

@@ -14,5 +14,7 @@ class AskAIRequest(BaseModel):
     
 class AskAIResponse(BaseModel):
     response: str
+    
+    
 # c'est une étape de validation des données avant de les traiter
 # empeche les données mal formées, FastAPI renvoie des erreurs claires
