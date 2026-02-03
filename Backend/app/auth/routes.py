@@ -4,6 +4,7 @@ from uuid import uuid4
 from app.auth.schemas import UserCreate, Token
 from app.db.users import get_user_by_email, create_user
 from app.core.security import hash_password, verify_password, create_access_token
+from app.core.deps import get_current_user
 
 
 router = APIRouter(prefix="/auth",tags=["auth"])
@@ -48,20 +49,20 @@ def login(user: UserCreate):
 
     # Création du token (JWT)
     token_data = {
-        "sub": user["id"],
-        "email": user["email"]
+        "sub": db_user["id"],
+        "email": db_user["email"]
     }
 
     token = create_access_token(token_data)
     
-    return {"access_token":token, "token_type": "bearer"}           # je sais pas si on garde bearer?
-
+    return {"access_token":token, "token_type": "bearer"}
 # puis le front reçoit le token et le mdp n'est plus utilisé
 
-#
-#@router.get("/dashboard")
-#def dashboard(user_id: str = Depends(get_current_user)):
-#    return {
-#        "message": "Bienvenue sur le dashboard",
-#        "user_id": user_id
-#    }
+
+# Une route protégée vérifie la présence et la validité du token JWT avant d’autoriser l’accès.
+@router.get("/protected")
+def protected_route(user_id: str = Depends(get_current_user)):
+    return {
+        "message": "Accès autorisé",
+        "user_id": user_id
+    }
