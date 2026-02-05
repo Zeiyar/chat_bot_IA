@@ -36,8 +36,8 @@ def register(user: UserCreate):
 
 
 # Le front envoie email + mdp, on le récupere ici l'user et compare le hash, si ok créer un JWT
-@router.post("/login",response_model=Token)
-def login(user: UserCreate):
+@router.post("/login")
+def login(user: UserCreate,response: Response):
 
     # Récupérer l'user
     db_user = get_user_by_email(user.email)
@@ -54,7 +54,7 @@ def login(user: UserCreate):
 
     token = create_access_token(token_data)
     
-    Response.set_cookie(
+    response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,
