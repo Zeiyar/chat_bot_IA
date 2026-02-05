@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status, Response
 from uuid import uuid4
 
 from app.auth.schemas import UserCreate, Token
@@ -54,7 +54,16 @@ def login(user: UserCreate):
 
     token = create_access_token(token_data)
     
-    return {"access_token":token, "token_type": "bearer"}
+    Response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False,      # True en prod (HTTPS)
+        samesite="lax",
+        max_age=60 * 60 * 24,  # 1 jour
+    )
+    
+    return {"message":"Login successful"}
 # puis le front reçoit le token et le mdp n'est plus utilisé
 
 
