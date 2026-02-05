@@ -3,22 +3,35 @@ import { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/me", {
-      credentials: "include",
-    })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        setUser(data);
-        setLoading(false);
+  async function fetchMe() {
+    try {
+      const res = await fetch("http://localhost:8000/users/me", {
+        credentials: "include",
       });
+
+      if (!res.ok) {
+        setUser(null);
+      } else {
+        const data = await res.json();
+        setUser(data);
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 👉 Appelé au chargement
+  useEffect(() => {
+    fetchMe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser: fetchMe }}>
       {children}
     </AuthContext.Provider>
   );
@@ -27,3 +40,6 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
+
+// stocke l'utilisateur connecté, vérifie automatiquement le JWT
+// AuthContext est partagé partout dans l'app
