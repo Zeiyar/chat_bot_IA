@@ -1,12 +1,13 @@
-import { useAuth } from "../auth/AuthContext";
+import { Outlet } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
 
 export default function Chats() {
-  const { user } = useAuth();
-
   return (
-    <div>
-      <h2>Chats</h2>
-      <p>Connected as: {user?.email}</p>
+    <div style={{ display: "flex", height: "100vh" }}>
+      <Sidebar />
+      <div style={{ flex: 1 }}>
+        <Outlet />
+      </div>
     </div>
   );
 }
