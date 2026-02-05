@@ -13,4 +13,5 @@ def get_user_history(user_id: str):
         reverse=True
         )
 
+
 # Ca range dans l'ordre de création des historiques de message

@@ -65,12 +65,3 @@ def login(user: UserCreate,response: Response):
     
     return {"message":"Login successful"}
 # puis le front reçoit le token et le mdp n'est plus utilisé
-
-
-# Une route protégée vérifie la présence et la validité du token JWT avant d’autoriser l’accès.
-@router.get("/protected")
-def protected_route(user_id: str = Depends(get_current_user)):
-    return {
-        "message": "Accès autorisé",
-        "user_id": user_id
-    }

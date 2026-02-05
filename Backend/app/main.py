@@ -4,6 +4,8 @@ from app.routes.user import router as user_router
 from app.routes.history import router as history_router
 from app.routes.ai import router as ai_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.routes.chats import router as chats_router
+from app.routes.message import router as message_router
 
 app = FastAPI()
 
@@ -19,3 +21,5 @@ app.include_router(ai_router)
 app.include_router(history_router)
 app.include_router(auth_router)
 app.include_router(user_router)
+app.include_router(chats_router)
+app.include_router(message_router)
