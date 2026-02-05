@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from app.db.database import chats_table
 
 def create_chat(chat: dict):
