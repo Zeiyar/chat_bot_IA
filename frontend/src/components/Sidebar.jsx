@@ -21,9 +21,17 @@ export default function Sidebar() {
     const chat = await res.json();
     navigate(`/chats/${chat.id}`);
   }
+  async function handleLogout() {
+    await logout();
+    await refreshUser();
+    navigate("/login");
+  }
 
   return (
     <div style={{ width: 250, borderRight: "1px solid #ddd" }}>
+      <button onClick={handleLogout} style={{ margin: 12 }}>
+        Logout
+      </button>
       <button onClick={createChat}>+ New chat</button>
       {chats.map(chat => (
         <div

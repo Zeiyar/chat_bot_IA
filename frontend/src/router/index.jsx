@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import Chats from "../pages/Chats";
 import Chat from "../pages/Chat";
 import ProtectedRoute from "../auth/ProtectedRoute";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 export default function AppRouter() {
   return (
@@ -15,7 +15,7 @@ export default function AppRouter() {
             path="/chats"
             element={
                 <ProtectedRoute>
-                <Chats />
+                  <DashboardLayout />
                 </ProtectedRoute>
             }
             />

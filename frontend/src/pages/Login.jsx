@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { login } from "../api/auth_api";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("looser@example.com");
+  const [password, setPassword] = useState("string");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -15,28 +16,11 @@ export default function Login() {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:8000/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Invalid credentials");
-      }
-
-      // Le cookie est maintenant posé
-
-      // 🔑 on synchronise le frontend
-      await refreshUser();
-
-      navigate("/chats");
-
-    } catch (err) {
-      setError(err.message);
+      await login(email, password); // cookie posé
+      await refreshUser();          // /me
+      navigate("/chat");
+    } catch {
+      setError("Invalid credentials");
     }
   }
 
@@ -62,6 +46,9 @@ export default function Login() {
       </form>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
+      <p>
+        Pas de compte ? <Link to="/register">Créer un compte</Link>
+      </p>
     </div>
   );
 }

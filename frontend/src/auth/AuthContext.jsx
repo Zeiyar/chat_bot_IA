@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { fetchMe } from "../api/auth_api";
 
 const AuthContext = createContext(null);
 
@@ -6,19 +7,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  async function fetchMe() {
+  async function refreshUser() {
     try {
-      const res = await fetch("http://localhost:8000/users/me", {
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        setUser(null);
-      } else {
-        const data = await res.json();
-        setUser(data);
+      const data = await fetchMe();
+      setUser(data);
       }
-    } catch {
+    catch {
       setUser(null);
     } finally {
       setLoading(false);
@@ -27,7 +21,7 @@ export function AuthProvider({ children }) {
 
   // 👉 Appelé au chargement
   useEffect(() => {
-    fetchMe();
+    refreshUser();
   }, []);
 
   return (

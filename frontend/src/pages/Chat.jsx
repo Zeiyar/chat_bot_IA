@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { fetchMessages, sendMessage } from "../api/chat_api";
+
 import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
 
@@ -7,62 +9,63 @@ export default function Chat() {
   const { chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  async function loadMessages() {
-    const res = await fetch(
-      `http://localhost:8000/chats/${chatId}/messages`,
-      { credentials: "include" }
-    );
-    const data = await res.json();
-    setMessages(data);
-    setLoading(false);
-  }
+  useEffect(() => {
+    async function loadMessages() {
+      try {
+        setLoading(true);
+        const data = await fetchMessages(chatId);
+        setMessages(data);
+      } catch (e) {
+        setError("Impossible de charger le chat");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  async function sendMessage(content) {
-    // optimistic UI
-    const tempMessage = {
-      id: "temp-" + Date.now(),
+    loadMessages();
+  }, [chatId]);
+
+  async function sendingMessage(content) {
+    if (!content.trim()) return;
+
+    // 1️⃣ Optimistic UI – message user
+    const tempUserMessage = {
+      id: "temp-user-" + Date.now(),
       role: "user",
       content,
       created_at: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, tempMessage]);
+    setMessages((prev) => [...prev, tempUserMessage]);
 
-    await fetch(
-      `http://localhost:8000/chats/${chatId}/messages`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content }),
-      }
-    );
+    try {
+      // 2️⃣ Appel backend (IA + sauvegarde)
+      const res = await sendMessage(chatId, content);
 
-    loadMessages(); // sync backend
+      // 3️⃣ Ajout réponse IA
+      const aiMessage = {
+        id: "temp-ai-" + Date.now(),
+        role: "assistant",
+        content: res.response,
+        created_at: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  useEffect(() => {
-    loadMessages();
-  }, [chatId]);
-
   if (loading) return <p>Loading chat…</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-      }}
-    >
-      <div style={{ flex: 1, overflowY: "auto" }}>
-        <MessageList messages={messages} />
-      </div>
-
-      <MessageInput onSend={sendMessage} />
-    </div>
+    <>
+      <MessageList messages={messages}/>
+      <MessageInput onSend={sendingMessage}/>
+    </>
   );
 }
