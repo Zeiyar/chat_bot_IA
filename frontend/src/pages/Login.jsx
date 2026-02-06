@@ -18,7 +18,7 @@ export default function Login() {
     try {
       await login(email, password); // cookie posé
       await refreshUser();          // /me
-      navigate("/chat");
+      navigate("/chats");
     } catch {
       setError("Invalid credentials");
     }
