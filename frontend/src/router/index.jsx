@@ -18,8 +18,10 @@ export default function AppRouter() {
                 <DashboardLayout />
               </ProtectedRoute>
             }
-            />
-        <Route path="/chats/:chatId" element={<Chat />} />
+            >
+        <Route index element={<Chat />} />          {/* dernier chat */}
+        <Route path=":chatId" element={<Chat />} /> {/* chat spécifique */}
+        </Route>
       </Routes>
     </BrowserRouter>
   );

@@ -38,7 +38,7 @@ export default function MessageInput({ onSend }) {
           padding: "0 16px",
         }}
       >
-        Send
+        Envoyé
       </button>
     </form>
   );

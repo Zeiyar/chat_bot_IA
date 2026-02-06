@@ -16,3 +16,7 @@ export async function sendMessage(chatId, prompt) {
   });
   return res.data;
 }
+
+export async function deleteChat(chatId) {
+  await api.delete(`/chats/${chatId}`);
+}

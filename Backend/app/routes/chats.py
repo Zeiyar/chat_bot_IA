@@ -4,6 +4,7 @@ import uuid
 
 from app.core.deps import get_current_user
 from app.db.chats import create_chat, get_user_chats, get_chat_by_id
+from app.db.database import chats_table,message_table
 
 router = APIRouter(prefix="/chats", tags=["chats"])
 
@@ -41,3 +42,14 @@ def get_chat(chat_id: str, user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Chat not found")
 
     return chat
+
+@router.delete("/{chat_id}")
+def delete_chat(chat_id: str, user_id: str = Depends(get_current_user)):
+    chat = get_chat_by_id(chat_id)
+    if not chat or chat["user_id"] != user_id:
+        raise HTTPException(status_code=404)
+
+    chats_table.remove(lambda c: c["id"] == chat_id)
+    message_table.remove(lambda m: m["chat_id"] == chat_id)
+
+    return {"status": "deleted"}

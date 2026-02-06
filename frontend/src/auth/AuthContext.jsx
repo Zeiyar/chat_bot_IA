@@ -7,12 +7,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // La fonction principale
   async function refreshUser() {
     try {
       const data = await fetchMe();
       setUser(data);
-      }
-    catch {
+    } catch {
       setUser(null);
     } finally {
       setLoading(false);
@@ -25,13 +25,14 @@ export function AuthProvider({ children }) {
   }
 
 
-  // 👉 Appelé au chargement
+  // 👉 Appelé UNE SEULE FOIS au chargement
   useEffect(() => {
     refreshUser();
   }, []);
 
+
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser: fetchMe, logoutUser }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );
