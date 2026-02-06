@@ -65,3 +65,8 @@ def login(user: UserCreate,response: Response):
     
     return {"message":"Login successful"}
 # puis le front reçoit le token et le mdp n'est plus utilisé
+
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "logged out"}
