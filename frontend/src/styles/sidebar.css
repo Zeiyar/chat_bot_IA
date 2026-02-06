@@ -1,0 +1,50 @@
+/* ===================== */
+/* SIDEBAR */
+/* ===================== */
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  height: 100vh;
+
+  position: sticky;
+  top: 0;
+
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.8),
+    rgba(15, 23, 42, 0.95)
+  );
+  border-right: 1px solid rgba(255,255,255,0.08);
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 12px;
+  gap: 12px;
+}
+
+
+/* top section */
+.sidebar__top {
+  padding: 16px;
+  display: flex;
+  gap: 8px;  
+  flex-direction: column;
+}
+
+/* list */
+.sidebar__list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+
+/* scrollbar clean */
+.sidebar__list::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar__list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}

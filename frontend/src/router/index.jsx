@@ -4,6 +4,7 @@ import Register from "../pages/Register";
 import Chat from "../pages/Chat";
 import ProtectedRoute from "../auth/ProtectedRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
+import EmptyChat from "../pages/EmptyChat"
 
 export default function AppRouter() {
   return (
@@ -19,7 +20,7 @@ export default function AppRouter() {
               </ProtectedRoute>
             }
             >
-        <Route index element={<Chat />} />          {/* dernier chat */}
+        <Route index element={<EmptyChat />} />          {/* dernier chat */}
         <Route path=":chatId" element={<Chat />} /> {/* chat spécifique */}
         </Route>
       </Routes>

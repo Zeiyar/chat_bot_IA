@@ -9,8 +9,8 @@ export default function MessageList({ messages }) {
   }, [messages]);
 
   return (
-    <div style={{ padding: 16 }}>
-      {messages.map(msg => (
+    <div className="chat__messages">
+      {messages.map((msg) => (
         <MessageBubble key={msg.id} message={msg} />
       ))}
       <div ref={bottomRef} />

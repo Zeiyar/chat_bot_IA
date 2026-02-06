@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchMessages, sendMessage } from "../api/chat_api";
+import Loader from "../components/Loader"
 
 import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
@@ -9,7 +10,7 @@ export default function Chat() {
   const { chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
     async function loadMessages() {
@@ -18,7 +19,7 @@ export default function Chat() {
         const data = await fetchMessages(chatId);
         setMessages(data);
       } catch (e) {
-        setError("Impossible de charger le chat");
+        setMessages([]);
       } finally {
         setLoading(false);
       }
@@ -39,6 +40,7 @@ export default function Chat() {
     };
 
     setMessages((prev) => [...prev, tempUserMessage]);
+    setIsThinking(true);
 
     try {
       // 2️⃣ Appel backend (IA + sauvegarde)
@@ -56,16 +58,19 @@ export default function Chat() {
 
     } catch (err) {
       console.error(err);
-    }
+    } finally {
+    setIsThinking(false);
+  }
   }
 
-  if (loading) return <p>Loading chat…</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p>Chargement du chat…</p>;
 
   return (
-    <>
-      <MessageList messages={messages}/>
-      <MessageInput onSend={sendingMessage}/>
-    </>
-  );
+  <div className="chat">
+    <MessageList messages={messages} />
+    {isThinking && <Loader />}
+    <MessageInput onSend={sendingMessage} disable={isThinking} />
+  </div>
+);
+
 }

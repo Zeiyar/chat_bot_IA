@@ -3,11 +3,11 @@ import { Outlet } from "react-router-dom";
 
 export default function DashboardLayout() {
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div className="app-shell">
       <Sidebar />
-      <div style={{ flex: 1 }}>
+      <main className="app-main">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }

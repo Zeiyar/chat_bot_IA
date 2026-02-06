@@ -59,7 +59,20 @@ On dois avoir une structure attendue qui est la suivante:
 ``pip install --upgrade pip``
 ``pip install -r requirements.txt``
 
-🔹 5. Lancer le serveur uvicorn backend
+🔹 5. *.env* à initialiser
+.env : S'occupe de la sécurité et des configurations avant la création des routes, tant que ce n'est pas prêt, on ne code aucune routes
+
+Il faut créer ce fichier et y ajouter les configurations suivantes: ``touch .env``
+
+``SECRET_KEY=super-secret-key``
+``ALGORITHM=HS256``
+``ACCESS_TOKEN_EXPIRE_MINUTES=1440``
+``OPENROUTER_API_KEY=""``
+
+On prépart ainsi les clés secrètes, le JWT et le bcrypt pour hacher (crypter) le mot de passe user
+Le .env ne sera pas envoyé sur github comme il est mis dnas le .gitignore
+
+🔹 6. Lancer le serveur uvicorn backend
 ``uvicorn app.main:app --reload``
 
 ➡️ Backend disponible sur : http://127.0.0.1:8000
@@ -84,72 +97,73 @@ On garde le server backend allumé, donc pouir travailler sur le fronted, on ouv
 
 ## Fonctionnement de l’authentification
 
-Inscription via /register
-Connexion via /login
+L’authentification repose sur un mécanisme JWT sécurisé via cookies HTTP-only, garantissant à la fois sécurité et simplicité côté frontend.
 
-Un JWT est généré côté backend
+🔹 Parcours utilisateur
 
-Le token est stocké dans un cookie HTTP-only
+1. Inscription via l’endpoint /register
+2. Connexion via l'endpoint /login
+3. Le backend génère un JWT signé et un mot de passe hashé
+4. Le token est stocké dans un cookie HTTP-only
+5. Le frontend n’accède jamais directement au token (protection XSS)
+6. Les routes protégées utilisent ce token pour identifier l’utilisateur
 
-Toutes les routes protégées utilisent ce token pour identifier l’utilisateur
+🔹 Avantages de cette approche
 
-🤖 Fonctionnalité IA
+1. Pas de stockage du token dans localStorage
+2. Protection contre les attaques XSS
+3. Gestion automatique de la session via le navigateur
 
-Les prompts sont envoyés au backend
 
-Le backend appelle le LLM (OpenRouter / Groq)
+## Fonctionnalité IA (Chat intelligent)
 
-L’historique est sauvegardé par utilisateur
+L’application propose une fonctionnalité de chat conversationnel avec une IA externe, intégrée de manière sécurisée et persistante.
 
-Chaque utilisateur possède une mémoire conversationnelle limitée
+🔹 Cycle complet d’un message IA
 
-🧪 Endpoints principaux
-Méthode	Route	Description
-POST	/auth/register	Créer un compte
-POST	/auth/login	Connexion
-GET	/auth/protected	Route protégée
-POST	/ask-ai	Envoyer un prompt IA
-GET	/history	Historique utilisateur
-🛠️ Dépannage courant
+1. L’utilisateur saisit un prompt dans l’interface React
+2. Le prompt est envoyé au backend via une requête HTTP sécurisée
+3. Le backend :
+    . identifie l’utilisateur via le cookie JWT
+    . appelle un LLM externe via Groq, ici ``llama-3.3-70b-versatile``
+4. La réponse de l’IA est retournée sur le frontend
+5. Le prompt et la réponse sont sauvegardés côté backend dans un historique
+6. L’interface affiche la réponse en temps réel
+
+🔹 Persistance & mémoire
+
+1. Chaque utilisateur dispose de son historique de conversations
+2. Les messages sont sauvegardés dans TinyDB (JSON)
+3. Les conversations sont conservées après un rafraîchissement de page et la fermeture du navigateur
+
+
+## Endpoints principaux
+
+| Méthode | Route                    | Description                                               |
+| ------- | ------------------------ | --------------------------------------------------------- |
+| POST    | `/auth/register`         | Création d’un compte utilisateur                          |
+| POST    | `/auth/login`            | Connexion et génération du JWT                            |
+| POST    | `/auth/logout`           | Déconnexion d’un utilisateur                              |
+| POST    | `/routes/ask-ai`         | Envoi d’un prompt à l’IA                                  |
+| POST    | `/routes/chats`          | Créer une nouvelle conversation                           |
+| GET     | `/routes/chats`          | Lister les conversations de l'utilisateur                 |
+| GET     | `/routes/chats/{chat_id}`| Créer une nouvelle conversation                           |
+| DELETE  | `/routes/chats/{chat_id}`| Supprimer une conversations                               |
+| GET     | `/messages/{chat_id}`    | Récupération les messages d'un chat                       |
+| POST    | `/messages/{chat_id}`    | Ecrir un messages d'un chat                               |
+| GET     | `/routes/me`             | Récupérer infos de l'utilisateur actuellement authentifié |
+
+
+
+## Dépannage courant
 ❌ Erreur bcrypt / mot de passe trop long
-
-Les mots de passe sont limités à 72 bytes
-
-Vérifiez la longueur côté backend
+    . Les mots de passe sont limités à 72 bytes
+    . Vérifiez la longueur côté backend
 
 ❌ Erreur 401 Unauthorized
-
-Vérifiez que vous êtes connecté
-
-Vérifiez la présence du cookie access_token
-
-🧠 Notes techniques
-
-Backend : FastAPI + TinyDB
-
-Frontend : React + Vite
-
-Auth : JWT + Cookies
-
-IA : LLM via API externe
-
-Architecture orientée sécurité & séparation des responsabilités
+    . Vérifiez que vous êtes connecté
+    . Vérifiez la présence du cookie access_token
 
 
 
-l utilisateur se connecter
-=> parle => frontend input => script 
-=> l ia répond => openrouter
-=> stocke les réponse et le prompt de base dans un json  => tiny_db
-=> on garde les chat même si on referme le navigateur => cookies
 
-
-## .env
-.env : S'occupe de la sécurité et des configurations avant la création des routes, tant que ce n'est pas prêt, on ne code aucune routes
-
-SECRET_KEY=super-secret-key
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-On prépart ainsi les clés secrètes, le JWT et le bcrypt pour hacher (crypter) le mot de passe user
-Le .env ne sera pas envoyé sur github 

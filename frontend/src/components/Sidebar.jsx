@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../api/auth_api";
 import { useAuth } from "../auth/AuthContext";
-import { deleteChat } from "../api/chat_api";
+import { deleteChat, createChatApi } from "../api/chat_api";
 
 export default function Sidebar() {
   const [chats, setChats] = useState([]);
@@ -18,62 +17,73 @@ export default function Sidebar() {
   }, []);
 
   async function createChat() {
-    const res = await fetch("http://localhost:8000/chats", {
-      method: "POST",
-      credentials: "include",
-    });
-    const chat = await res.json();
+    const chat = await createChatApi();
+
+    setChats(prev => [chat, ...prev]);
     navigate(`/chats/${chat.id}`);
   }
+
   async function handleLogout() {
-    await logout();
     await logoutUser();
     navigate("/login");
   }
+  
   async function handleDelete(chatId, e) {
-    e.stopPropagation(); // empêche navigation au clic
+    e.stopPropagation();
 
-    const confirm = window.confirm("Supprimer ce chat ?");
-    if (!confirm) return;
+    const confirmDelete = window.confirm("Supprimer ce chat ?");
+    if (!confirmDelete) return;
 
-    await deleteChat(chatId)
+    await deleteChat(chatId);
 
-    // rafraîchir la liste
     setChats(prev => {
-        const updated = prev.filter(c => c.id !== chatId);
+        // 🛡️ sécurité absolue
+        const safePrev = Array.isArray(prev) ? prev : [];
 
-        if (updated.length > 0){
-            navigate(`/chats/${updated[0].id}`)
-        }else {
+        const updated = safePrev.filter(c => c.id !== chatId);
+
+        return updated;
+    });
+
+    // navigation APRÈS le setState
+    setTimeout(() => {
+        setChats(current => {
+        if (!Array.isArray(current) || current.length === 0) {
             navigate("/chats");
+        } else {
+            navigate(`/chats/${current[0].id}`);
         }
-    })
-
-    // redirection si on était dans ce chat
-    return updated
+        return current;
+        });
+    }, 0);
     }
 
 
   return (
-    <div style={{ width: 250, borderRight: "1px solid #ddd" }}>
-      <button onClick={handleLogout} style={{ margin: 12 }}>
-        Logout
-      </button>
-      <button onClick={createChat}>+ New chat</button>
-      {chats.map(chat => (
+  <aside className="sidebar">
+    <div className="sidebar__top">
+      <button className="btn btn--ghost" onClick={handleLogout}>Logout</button>
+      <button className="btn btn--primary" onClick={createChat}>+ New chat</button>
+    </div>
+
+    <div className="sidebar__list">
+      {Array.isArray(chats) && chats.map((chat) => (
         <div
           key={chat.id}
+          className="chat-item"
           onClick={() => navigate(`/chats/${chat.id}`)}
         >
-           {chat.title}
-        <button
-            onClick={(e) => handleDelete(chat.id,e)}
-            style={{ color: "red" }}
-            >
+          <span className="chat-item__title">{chat.title}</span>
+          <button
+            className="icon-btn icon-btn--danger"
+            onClick={(e) => handleDelete(chat.id, e)}
+            title="Supprimer"
+          >
             🗑
-        </button>
+          </button>
         </div>
       ))}
     </div>
-  );
+  </aside>
+)
 }

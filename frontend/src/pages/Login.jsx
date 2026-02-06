@@ -24,6 +24,7 @@ export default function Login() {
     }
   }
 
+  /*
   return (
     <div>
       <h2>Login</h2>
@@ -51,4 +52,43 @@ export default function Login() {
       </p>
     </div>
   );
+}*/
+
+return (
+  <div className="auth-page">
+  <form onSubmit={handleSubmit} className="auth-form">
+    <h2>Connexion</h2>
+
+    <input
+      className="auth-input"
+      type="email"
+      placeholder="Email"
+      value={email}
+      onChange={e => setEmail(e.target.value)}
+    />
+
+    <input
+      className="auth-input"
+      type="password"
+      placeholder="Password"
+      value={password}
+      onChange={e => setPassword(e.target.value)}
+    />
+
+    <button type="submit" className="auth-button">
+      LOGIN
+    </button>
+
+    {error && (
+      <p className="auth-error">
+        {error}
+      </p>
+    )}
+
+    <p className="auth-link">
+      Pas de compte ? <Link to="/register">Créer un compte</Link>
+    </p>
+  </form>
+</div>
+);
 }

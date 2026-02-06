@@ -5,7 +5,7 @@ export async function fetchMessages(chatId) {
   return res.data;
 }
 
-export async function createChat() {
+export async function createChatApi() {
   const res = await api.post("/chats");
   return res.data;
 }
