@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../api/auth_api";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Sidebar() {
   const [chats, setChats] = useState([]);
   const navigate = useNavigate();
+  const { logoutUser } = useAuth();
 
   useEffect(() => {
     fetch("http://localhost:8000/chats", {
@@ -23,7 +26,7 @@ export default function Sidebar() {
   }
   async function handleLogout() {
     await logout();
-    await refreshUser();
+    await logoutUser();
     navigate("/login");
   }
 

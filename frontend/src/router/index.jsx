@@ -14,9 +14,9 @@ export default function AppRouter() {
         <Route
             path="/chats"
             element={
-                <ProtectedRoute>
-                  <DashboardLayout />
-                </ProtectedRoute>
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
             }
             />
         <Route path="/chats/:chatId" element={<Chat />} />

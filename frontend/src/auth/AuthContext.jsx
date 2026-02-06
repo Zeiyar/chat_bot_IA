@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { fetchMe } from "../api/auth_api";
+import { fetchMe, logout } from "../api/auth_api";
 
 const AuthContext = createContext(null);
 
@@ -19,13 +19,19 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function logoutUser() {
+    await logout();
+    setUser(null);
+  }
+
+
   // 👉 Appelé au chargement
   useEffect(() => {
     refreshUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser: fetchMe }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser: fetchMe, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );

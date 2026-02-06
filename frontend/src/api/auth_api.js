@@ -16,4 +16,3 @@ export async function fetchMe() {
 export async function logout() {
   await api.post("/auth/logout");
 }
-
