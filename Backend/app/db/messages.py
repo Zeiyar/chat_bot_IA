@@ -9,3 +9,6 @@ def get_chat_messages(chat_id: str):
         results,
         key=lambda x: x["created_at"]
     )
+
+def delete_messages(chat_id: str):
+    message_table.remove(lambda m: m["chat_id"] == chat_id)

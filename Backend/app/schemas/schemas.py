@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -16,7 +16,9 @@ class AskAIResponse(BaseModel):
     response: str
     
 class PostMessageAi(BaseModel):
-    content: str
+    content: str = Field(min_length=1, max_length=2000)
+    
+
     
     
 # c'est une étape de validation des données avant de les traiter

@@ -1,10 +1,9 @@
-from fastapi import Depends, APIRouter, HTTPException, status, Response
+from fastapi import APIRouter, HTTPException, status, Response
 from uuid import uuid4
 
-from app.auth.schemas import UserCreate, Token
+from app.schemas.schemas import UserCreate
 from app.db.users import get_user_by_email, create_user
 from app.core.security import hash_password, verify_password, create_access_token
-from app.core.deps import get_current_user
 
 
 router = APIRouter(prefix="/auth",tags=["auth"])

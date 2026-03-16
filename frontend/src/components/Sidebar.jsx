@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { deleteChat, createChatApi } from "../api/chat_api";
+import { deleteChat, createChatApi, getChats } from "../api/chat_api";
 
 export default function Sidebar() {
   const [chats, setChats] = useState([]);
@@ -9,11 +9,7 @@ export default function Sidebar() {
   const { logoutUser } = useAuth();
 
   useEffect(() => {
-    fetch("http://localhost:8000/chats", {
-      credentials: "include",
-    })
-      .then(res => res.json())
-      .then(setChats);
+    getChats().then(setChats);
   }, []);
 
   async function createChat() {

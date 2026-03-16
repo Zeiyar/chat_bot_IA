@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
 import uuid
+import logging
 
 from app.core.deps import get_current_user
 from app.db.messages import add_message
-from app.auth.schemas import AskAIRequest, AskAIResponse
+from app.schemas.schemas import AskAIRequest, AskAIResponse
 from app.core.groq_client import client
-from app.db.chats import get_chat_by_id
+from app.db.chats import get_chat_by_id, update_chat_title
 from app.db.messages import get_chat_messages
-from app.db.database import chats_table
 
 router = APIRouter(prefix="/ask-ai", tags=["ai"])
 
@@ -37,7 +37,6 @@ def ask_ai(
     add_message(user_message)
     
     messages = get_chat_messages(chat_id)
-    messages.sort(key=lambda m: m["created_at"])
     
     llm_messages = [
         {
@@ -58,7 +57,11 @@ def ask_ai(
         )
         ai_text = chat_completion.choices[0].message.content
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(e)
+        raise HTTPException(
+            status_code=500, 
+            detail="Internal Server Error"
+            )
 
     # Sauvegarde historique
     ai_message = {
@@ -72,9 +75,9 @@ def ask_ai(
     
     if chat["title"] == "New chat":
         title = prompt[:40]
-        chats_table.update(
-            {"title": title},
-            lambda c: c["id"] == chat_id
+        update_chat_title(
+            chat_id,
+            title
     )
 
     return {"response": ai_text}

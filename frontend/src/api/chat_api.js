@@ -20,3 +20,8 @@ export async function sendMessage(chatId, prompt) {
 export async function deleteChat(chatId) {
   await api.delete(`/chats/${chatId}`);
 }
+
+export async function getChats() {
+  const res = await api.get("/chats");
+  return res.data;
+}

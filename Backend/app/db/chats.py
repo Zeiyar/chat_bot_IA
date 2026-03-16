@@ -9,3 +9,12 @@ def get_user_chats(user_id: str):
 def get_chat_by_id(chat_id: str):
     result = chats_table.search(lambda c: c["id"] == chat_id)
     return result[0] if result else None
+
+def update_chat_title(chat_id: str, title: str):
+    chats_table.update(
+        {"title": title},
+        lambda c: c["id"] == chat_id
+    )
+
+def delete_chat_db(chat_id: str):
+    chats_table.remove(lambda c: c["id"] == chat_id)

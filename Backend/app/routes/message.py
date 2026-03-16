@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
 import uuid
 
+from app.schemas.schemas import PostMessageAi
+
 from app.core.deps import get_current_user
 from app.db.chats import get_chat_by_id
 from app.db.messages import add_message, get_chat_messages
@@ -28,7 +30,7 @@ def list_messages(chat_id: str, user_id: str = Depends(get_current_user)):
 @router.post("")
 def post_message(
     chat_id: str,
-    payload: dict,
+    payload: PostMessageAi,
     user_id: str = Depends(get_current_user)
 ):
     chat = get_chat_by_id(chat_id)
@@ -36,7 +38,7 @@ def post_message(
     if not chat or chat["user_id"] != user_id:
         raise HTTPException(status_code=404, detail="Chat not found")
 
-    content = payload.get("content")
+    content = payload.content
 
     if not content:
         raise HTTPException(status_code=400, detail="Message content required")
